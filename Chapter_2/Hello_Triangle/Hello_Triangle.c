@@ -50,48 +50,35 @@ typedef struct
 //
 GLuint LoadShader ( GLenum type, const char *shaderSrc )
 {
-   GLuint shader;
-   GLint compiled;
-
-   // Create the shader object
-   shader = glCreateShader ( type );
-
-   if ( shader == 0 )
-   {
-      return 0;
-   }
-
-   // Load the shader source
-   glShaderSource ( shader, 1, &shaderSrc, NULL );
-
-   // Compile the shader
-   glCompileShader ( shader );
-
-   // Check the compile status
-   glGetShaderiv ( shader, GL_COMPILE_STATUS, &compiled );
-
-   if ( !compiled )
-   {
-      GLint infoLen = 0;
-
-      glGetShaderiv ( shader, GL_INFO_LOG_LENGTH, &infoLen );
-
-      if ( infoLen > 1 )
-      {
-         char *infoLog = malloc ( sizeof ( char ) * infoLen );
-
-         glGetShaderInfoLog ( shader, infoLen, NULL, infoLog );
-         esLogMessage ( "Error compiling shader:\n%s\n", infoLog );
-
-         free ( infoLog );
-      }
-
-      glDeleteShader ( shader );
-      return 0;
-   }
-
-   return shader;
-
+    GLint shader;
+    shader = glCreateShader(type);
+    
+    if (!shader) {
+        return 0;
+    }
+    
+    glShaderSource(shader, 1, &shaderSrc, NULL);
+    glCompileShader(shader);
+    
+    GLint compiled;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+    
+    if (!compiled) {
+        GLint length = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+        
+        if (length > 1) {
+            char log[length];
+            glGetShaderInfoLog(shader, length, NULL, log);
+            esLogMessage("Error compile shader:\n%s\n", log);
+        }
+        
+        glDeleteShader(shader);
+        
+        return 0;
+    }
+    
+    return shader;
 }
 
 ///
@@ -102,71 +89,85 @@ int Init ( ESContext *esContext )
    UserData *userData = esContext->userData;
    char vShaderStr[] =
       "#version 300 es                          \n"
-      "layout(location = 0) in vec4 vPosition;  \n"
+      "layout(location = 0) in vec4 a_position; \n"
+      "layout(location = 1) in vec4 a_color;    \n"
+      "out vec4 v_color;                        \n"
       "void main()                              \n"
       "{                                        \n"
-      "   gl_Position = vPosition;              \n"
+      "   gl_Position = vec4(a_position.x * 0.5f, a_position.yzw);             \n"
+      "   v_color = a_color;                    \n"
       "}                                        \n";
 
    char fShaderStr[] =
       "#version 300 es                              \n"
       "precision mediump float;                     \n"
-      "out vec4 fragColor;                          \n"
+      "in vec4 v_color;                             \n"
+      "out vec4 o_fragColor;                        \n"
       "void main()                                  \n"
       "{                                            \n"
-      "   fragColor = vec4 ( 1.0, 0.0, 0.0, 1.0 );  \n"
+      "   o_fragColor = v_color;                    \n"
       "}                                            \n";
 
-   GLuint vertexShader;
-   GLuint fragmentShader;
-   GLuint programObject;
-   GLint linked;
-
-   // Load the vertex/fragment shaders
-   vertexShader = LoadShader ( GL_VERTEX_SHADER, vShaderStr );
-   fragmentShader = LoadShader ( GL_FRAGMENT_SHADER, fShaderStr );
-
-   // Create the program object
-   programObject = glCreateProgram ( );
-
-   if ( programObject == 0 )
-   {
-      return 0;
-   }
-
-   glAttachShader ( programObject, vertexShader );
-   glAttachShader ( programObject, fragmentShader );
-
-   // Link the program
-   glLinkProgram ( programObject );
-
-   // Check the link status
-   glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );
-
-   if ( !linked )
-   {
-      GLint infoLen = 0;
-
-      glGetProgramiv ( programObject, GL_INFO_LOG_LENGTH, &infoLen );
-
-      if ( infoLen > 1 )
-      {
-         char *infoLog = malloc ( sizeof ( char ) * infoLen );
-
-         glGetProgramInfoLog ( programObject, infoLen, NULL, infoLog );
-         esLogMessage ( "Error linking program:\n%s\n", infoLog );
-
-         free ( infoLog );
-      }
-
-      glDeleteProgram ( programObject );
-      return FALSE;
-   }
-
+    GLuint programObject = glCreateProgram();
+    
+    if (!programObject) {
+        return 0;
+    }
+    
+    glAttachShader(programObject, LoadShader(GL_VERTEX_SHADER, vShaderStr));
+    glAttachShader(programObject, LoadShader(GL_FRAGMENT_SHADER, fShaderStr));
+    
+    glLinkProgram(programObject);
+    
+    GLint linked;
+    glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
+    
+    if (!linked) {
+        GLint length = 0;
+        glGetProgramiv(programObject, GL_INFO_LOG_LENGTH, &length);
+        
+        if (length > 1) {
+            char log[length];
+            glGetProgramInfoLog(programObject, length, NULL, log);
+            esLogMessage("Error link program:\n%s\n", log);
+        }
+        
+        glDeleteProgram(programObject);
+        return 0;
+    }
+    
+    {
+//        GLint uniformNum, maxUniformLen;
+//
+//        glGetProgramiv(programObject, GL_ACTIVE_UNIFORMS, &uniformNum);
+//        glGetProgramiv(programObject, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformLen);
+//
+//        GLint size;
+//        GLenum type;
+//        char *name = malloc(sizeof(char) * maxUniformLen);
+//        GLint location;
+//
+//        glGetActiveUniform(programObject, 0, maxUniformLen, NULL, &size, &type, name);
+//        location = glGetUniformLocation(programObject, name);
+//        free(name);
+//
+//        GLenum error;
+//        error = glGetError();
+//
+//        if (type == GL_FLOAT) {
+//            glUniform1f(location, 0.5);
+//
+//            error = glGetError();
+//            if (error == GL_NO_ERROR) {
+//                esLogMessage("");
+//            }
+//        }
+    }
+    
    // Store the program object
    userData->programObject = programObject;
 
-   glClearColor ( 1.0f, 1.0f, 1.0f, 0.0f );
+   glClearColor ( 0.0f, 0.0f, 0.0f, 0.0f );
    return TRUE;
 }
 
@@ -193,6 +194,8 @@ void Draw ( ESContext *esContext )
    // Load the vertex data
    glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 0, vVertices );
    glEnableVertexAttribArray ( 0 );
+    
+    glVertexAttrib4f(1, 0.0f, 1.0f, 0.0f, 1.0f);
 
    glDrawArrays ( GL_TRIANGLES, 0, 3 );
 }

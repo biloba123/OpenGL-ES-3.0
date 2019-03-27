@@ -111,6 +111,7 @@
 				7625BC3B17F32A780019C421 /* main.m */,
 				7625BC3C17F32A780019C421 /* ViewController.h */,
 				7625BC3D17F32A780019C421 /* ViewController.m */,
+				7626524B17F10E6C007CCD43 /* Main_iPhone.storyboard */,
 			);
 			name = iOS;
 			path = ../../../../../Common/Source/iOS;
@@ -158,7 +159,6 @@
 				7626527717F10EE6007CCD43 /* esTransform.c */,
 				7626527817F10EE6007CCD43 /* esUtil.c */,
 				7625BC3617F32A780019C421 /* iOS */,
-				7626524B17F10E6C007CCD43 /* Main_iPhone.storyboard */,
 				7626524E17F10E6C007CCD43 /* Main_iPad.storyboard */,
 				7626525817F10E6C007CCD43 /* Images.xcassets */,
 				7626524017F10E6C007CCD43 /* Supporting Files */,
@@ -241,6 +241,9 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Daniel Ginsburg";
 				TargetAttributes = {
+					7626523117F10E6C007CCD43 = {
+						DevelopmentTeam = NX767XYHNB;
+					};
 					7626525D17F10E6C007CCD43 = {
 						TestTargetID = 7626523117F10E6C007CCD43;
 					};
@@ -437,9 +440,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = NX767XYHNB;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hello_Triangle/Hello_Triangle-Prefix.pch";
 				INFOPLIST_FILE = "Hello_Triangle/Hello_Triangle-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "ES3Book.Hello-Triangle.lqy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = ../../../../Common/Include;
 				WRAPPER_EXTENSION = app;
@@ -451,9 +456,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = NX767XYHNB;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hello_Triangle/Hello_Triangle-Prefix.pch";
 				INFOPLIST_FILE = "Hello_Triangle/Hello_Triangle-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "ES3Book.Hello-Triangle.lqy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = ../../../../Common/Include;
 				WRAPPER_EXTENSION = app;
