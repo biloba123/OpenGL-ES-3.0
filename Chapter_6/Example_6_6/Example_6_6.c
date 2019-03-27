@@ -100,7 +100,53 @@ int Init ( ESContext *esContext )
    return GL_TRUE;
 }
 
-void DrawPrimitiveWithVBOs ( ESContext *esContext,
+//客户端定点数组
+void DrawPrimitiveWithoutVBOs(GLfloat *vertices, GLint vtxStride, GLint numIndices, GLushort *indices) {
+    //清除缓冲区对象绑定
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
+    glEnableVertexAttribArray(VERTEX_POS_INDX);
+    glEnableVertexAttribArray(VERTEX_COLOR_INDX);
+    
+    glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, vtxStride, vertices);
+    glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, vtxStride, vertices + VERTEX_POS_SIZE);
+    
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, indices);
+    
+    glDisableVertexAttribArray(VERTEX_POS_INDX);
+    glDisableVertexAttribArray(VERTEX_COLOR_INDX);
+}
+
+//顶点缓冲区对象（结构数组）
+void DrawPrimitiveWithVBOsOfAOS(ESContext *esContext, GLint numVertices, GLfloat *vtxBuf, GLint vtxStride, GLint numIndices, GLushort *indices) {
+    UserData *userData = esContext->userData;
+    
+    if (userData->vboIds[0] == 0 && userData->vboIds[1] == 0) {
+        glGenBuffers(2, userData->vboIds);
+        glBindBuffer(GL_ARRAY_BUFFER, userData->vboIds[0]);
+        glBufferData(GL_ARRAY_BUFFER, numVertices * vtxStride, vtxBuf, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, userData->vboIds[1]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(GLushort), indices, GL_STATIC_DRAW);
+    }
+    
+    glBindBuffer(GL_ARRAY_BUFFER, userData->vboIds[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, userData->vboIds[1]);
+    
+    glEnableVertexAttribArray(VERTEX_POS_INDX);
+    glEnableVertexAttribArray(VERTEX_COLOR_INDX);
+    
+    glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, vtxStride, 0);
+    glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, vtxStride, (const void *)(VERTEX_POS_SIZE * sizeof(float)));
+    
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0);
+    
+    glBindBuffer ( GL_ARRAY_BUFFER, 0 );
+    glBindBuffer ( GL_ELEMENT_ARRAY_BUFFER, 0 );
+}
+
+//顶点缓冲区对象（数组结构）
+void DrawPrimitiveWithVBOsOfSOA ( ESContext *esContext,
                              GLint numVertices, GLfloat **vtxBuf,
                              GLint *vtxStrides, GLint numIndices,
                              GLushort *indices )
@@ -163,12 +209,22 @@ void Draw ( ESContext *esContext )
       -0.5f, -0.5f, 0.0f,        // v1
       0.5f, -0.5f, 0.0f         // v2
    };
-   GLfloat color[4 * VERTEX_COLOR_SIZE] =
+   GLfloat color[3 * VERTEX_COLOR_SIZE] =
    {
       1.0f, 0.0f, 0.0f, 1.0f,   // c0
       0.0f, 1.0f, 0.0f, 1.0f,   // c1
       0.0f, 0.0f, 1.0f, 1.0f    // c2
    };
+    
+    GLfloat vertices[3 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)] = {
+        0.0f,  0.5f, 0.0f,        // v0
+        1.0f, 0.0f, 0.0f, 1.0f,   // c0
+        -0.5f, -0.5f, 0.0f,        // v1
+        0.0f, 1.0f, 0.0f, 1.0f,   // c1
+        0.5f, -0.5f, 0.0f,         // v2
+        0.0f, 0.0f, 1.0f, 1.0f    // c2
+    };
+    
    GLint vtxStrides[2] =
    {
       VERTEX_POS_SIZE * sizeof ( GLfloat ),
@@ -183,8 +239,12 @@ void Draw ( ESContext *esContext )
    glClear ( GL_COLOR_BUFFER_BIT );
    glUseProgram ( userData->programObject );
 
-   DrawPrimitiveWithVBOs ( esContext, 3, vtxBuf,
-                           vtxStrides, 3, indices );
+//   DrawPrimitiveWithVBOsOfSOA ( esContext, 3, vtxBuf,
+//                           vtxStrides, 3, indices );
+    
+//    DrawPrimitiveWithoutVBOs(vertices, vtxStrides[0] + vtxStrides[1], 3, indices);
+    
+    DrawPrimitiveWithVBOsOfAOS(esContext, 3, vertices, vtxStrides[0] + vtxStrides[1], 3, indices);
 }
 
 void Shutdown ( ESContext *esContext )
