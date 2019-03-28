@@ -141,6 +141,18 @@ void DrawPrimitiveWithVBOsMapBuffers ( ESContext *esContext,
          esLogMessage ( "Error unmapping array buffer object." );
          return;
       }
+       
+       {
+           vtxMappedBuf = (GLfloat *)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * VERTEX_POS_SIZE, GL_MAP_WRITE_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+           GLfloat src[] = {0.0f,  1.0f, 0.0f};
+           memcpy(vtxMappedBuf, src, sizeof(GLfloat) * VERTEX_POS_SIZE);
+           glFlushMappedBufferRange(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * VERTEX_POS_SIZE);
+           if ( glUnmapBuffer ( GL_ARRAY_BUFFER ) == GL_FALSE )
+           {
+               esLogMessage ( "Error unmapping array buffer object." );
+               return;
+           }
+       }
 
       // Map the index buffer
       glBindBuffer ( GL_ELEMENT_ARRAY_BUFFER, userData->vboIds[1] );
