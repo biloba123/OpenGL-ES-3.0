@@ -159,6 +159,12 @@ void Draw ( ESContext *esContext )
 
    // Bind the VAO
    glBindVertexArray ( userData->vaoId );
+    
+    {
+        glFrontFace(GL_CCW);
+        glCullFace(GL_BACK);
+        glEnable(GL_CULL_FACE);
+    }
 
    // Draw with the VAO settings
    glDrawElements ( GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, ( const void * ) 0 );
